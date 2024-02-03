@@ -24,7 +24,7 @@ while True:
         for i in p.items():
             if i[1] > 85:
                 color = "\033[0;31;40m"
-            elif i[1] > 85:
+            elif i[1] > 75:
                 color="\033[0;33;40m"
             else:
                 color="\033[0m"
