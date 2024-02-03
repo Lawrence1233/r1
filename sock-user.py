@@ -44,5 +44,5 @@ while True:
         sys.stdout.write(str1)
         sys.stdout.flush()
 
-        time.sleep(1)
+        time.sleep(0.5)
 
