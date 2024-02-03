@@ -1,3 +1,4 @@
+import os
 import socket
 import json
 import time
@@ -11,17 +12,26 @@ while True:
     try:
         sock.connect(server)
     except:
-        print("[!] 连接不成功")
+        print("[!] CONNECT FAILED")
         continue
     sock.send(key.encode())
     time.sleep(3)
-
+    os.system('clear')
     while True:
         sock.send("get_temp".encode())
         p=sock.recv(1024)
         p=json.loads(p.decode().replace("\'","\""))
         str1='\r'
         for i in p.items():
+
+            if 'cpu' in i[0] and i[1] >= 100 or 'gpu' in i[0] and i[1] >= 86:
+                sock.send('overheat_warning')
+                print("\033[0;31;40m!!!WARNING!!! OVERHEAT\033[0m\n"*100)
+                time.sleep(12)
+                os.system('clear')
+
+
+
             if i[1] > 85:
                 color = "\033[0;31;40m"
             elif i[1] > 75:
