@@ -38,7 +38,7 @@ while True:
                     overheat_protection_now=0
 
             if overheat_protection_now+overheat_protection_threshold<=time.time():
-                sock.send('overheat_protection')
+                sock.send('overheat_protect'.encode())
                 print("\033[0;31;40m!!!WARNING!!! OVERHEAT PROTECTION ACTIVATED - YOUR COMPUTER ARE EXECUTING SHUTDOWN COMMAND\033[0m\n" * 100)
                 input()
 
