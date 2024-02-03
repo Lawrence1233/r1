@@ -25,7 +25,7 @@ while True:
         for i in p.items():
 
             if 'cpu' in i[0] and i[1] >= 100 or 'gpu' in i[0] and i[1] >= 86:
-                sock.send('overheat_warning')
+                sock.send('overheat_warning'.encode())
                 print("\033[0;31;40m!!!WARNING!!! OVERHEAT\033[0m\n"*100)
                 time.sleep(12)
                 os.system('clear')
