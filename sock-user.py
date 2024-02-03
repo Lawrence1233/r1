@@ -7,7 +7,7 @@ key="3dggswfbwkd3nashv830189yf1ai1o5vkpc12xga0j1qyuik3gubh82wh1f47rmqq9e341dncj5
 # key='12345'
 
 while True:
-    overheat_protection_now=0#时间戳
+    overheat_protection_now=float('inf')#时间戳
     overheat_protection_threshold=5*60#强制关机阈值
     server=(input("ANDRESS:"),int(input("PORT:")))
     sock=socket.socket()
@@ -27,7 +27,7 @@ while True:
         for i in p.items():
 
             if 'cpu' in i[0] and i[1] >= 100 or 'gpu' in i[0] and i[1] >= 86:
-                if overheat_protection_now==0:
+                if overheat_protection_now==float('inf'):
                     overheat_protection_now=time.time()
                 sock.send('overheat_warning'.encode())
                 print("\033[0;31;40m!!!WARNING!!! OVERHEAT\033[0m\n"*100)
@@ -35,7 +35,7 @@ while True:
                 os.system('clear')
             else:
                 if 'cpu' in i[0] and i[1] < 99 or 'gpu' in i[0] and i[1] < 85:
-                    overheat_protection_now=0
+                    overheat_protection_now=float('inf')
 
             if overheat_protection_now+overheat_protection_threshold<=time.time():
                 sock.send('overheat_protect'.encode())
