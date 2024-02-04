@@ -66,7 +66,8 @@ while True:
     while True:
         try:
             if get_email_delay+last_get_email<time.time():
-                sock.send("get_email".encode())
+                last_get_email=time.time()
+                sock.send("read_email".encode())
                 email_data=sock.recv(8192)
                 email_data=json.loads(email_data.decode())
                 #->dict
