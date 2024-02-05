@@ -91,10 +91,10 @@ while True:
 
                     match body[1]:
                         case "shutdown-s":
-                            send_email(sock,email_data['MailSender'],"The server was accept the shutdown command,the computer will shutdown after 30 second. System command:shutdown -s -t 30")
+                            send_email(sock,email_data['MailSender'],"The RaspberryPi was accept the shutdown command,the computer will shutdown after 30 second. System command:shutdown -s -t 30")
                             sock.send("shutdown-s".encode())
                         case "shutdown-h":
-                            send_email(sock,email_data['MailSender'], "The server was accept the hibernate command,the computer will shutdown immediately.System command:shutdown -h")
+                            send_email(sock,email_data['MailSender'], "The RaspberryPi was accept the hibernate command,the computer will shutdown immediately.System command:shutdown -h")
                             sock.send("shutdown-h".encode())
                         case "temp":
                             send_email(sock, email_data['MailSender'], str(p))
