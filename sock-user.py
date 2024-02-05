@@ -4,6 +4,8 @@ import json
 import time
 import sys
 import re
+import traceback
+
 key="3dggswfbwkd3nashv830189yf1ai1o5vkpc12xga0j1qyuik3gubh82wh1f47rmqq9e341dncj5voi0uuibh50wn7ft1wr2kbpzbm91v6mrxyh5w0usz43jbjhnefnr3utfy22k19ntltcn04ab19dozvu41lt58f1yb8m3512pp3ry7vhl2robcj2zpuuyv53031k9m6s7rpnxplgimxhobl605seaphrqt1cuui1xtotscjarphez2jwj8emt1nh09z7s7i085zs2p2x2l9i5xb4bqjxyzhtr46i9e96kdyl2zeb6ip1uhxia25yi1tcarp4wotu5kkjfdklv8zrv1mqimeph671sf4dbkjidqdqph0jh7jw6tl755netlz5lyodc1n5kvtbbjsyh0ufcl84p64taz054gvrlsxta2q8iv5tqbikptzk5pw7enxbpz9ckctrvl95wehgg9vlyfuhej5suvpl0we1xqaor32e8pxwl6kyg9vkjiglps"
 # key='12345'
 memory=[]
@@ -47,7 +49,8 @@ print("""
 """)
 
 time.sleep(3)
-os.system('clear')
+if os.system('clear'):  # 适配win/linux
+    os.system('cls')
 while True:
     overheat_protection_now=float('inf')#时间戳
     overheat_protection_threshold=5*60#强制关机阈值
@@ -62,33 +65,40 @@ while True:
         continue
     sock.send(key.encode())
     time.sleep(3)
-    os.system('clear')
+    if os.system('clear'):#适配win/linux
+        os.system('cls')
     while True:
         try:
             if get_email_delay+last_get_email<time.time():
                 last_get_email=time.time()
                 sock.send("read_email".encode())
                 email_data=sock.recv(8192)
-                email_data=json.loads(email_data.decode())
+                email_data=json.loads(email_data.decode().replace("\'","\""))
                 #->dict
                 if email_data['Time']+60*3>time.time() and email_data["Hash"] not in memory:#丢弃超过3分钟/已处理的邮件
-                    body=eval(re.compile(email_data["MailBody"]).findall(r"(\([^\(\)]*\))")[0])#safety
+                    memory.append(email_data['Hash'])  # 丢弃
+                    body = eval(re.compile(r"(\([^\(\)]*\))").findall(email_data["MailBody"])[0].replace(",","\",\"").replace("(","(\"").replace(")","\")"))  # safety
                     #->tuple
                     #(key,command,args)
                     if type(body) != tuple:
-                        memory.append(email_data['Hash'])#丢弃
                         print("\033[0;31;40m[!] Incorrect command format,this email will be discarded.\033[0m\n")
-
                         raise TypeError
+
+                    if body[0] != email_key:
+                        print("\033[0;31;40m[!] Incorrect password\033[0m\n")
+                        raise KeyError
+
                     match body[1]:
                         case "shutdown-s":
-                            send_email(email_data['MailSender'],"Command valid, executing shutdown command.")
-                            p.send("shutdown-s")
+                            send_email(sock,email_data['MailSender'],"Command valid, executing shutdown command. System command:shutdown -s -t 30")
+                            sock.send("shutdown-s".encode())
                         case "shutdown-h":
-                            send_email(email_data['MailSender'], "Command valid, executing shutdown command.")
-                            p.send("shutdown-h")
+                            send_email(sock,email_data['MailSender'], "Command valid, executing shutdown command. System command:shutdown -h")
+                            sock.send("shutdown-h".encode())
+                        case "temp":
+                            send_email(sock, email_data['MailSender'], str(p))
                         case _:
-                            send_email(email_data['MailSender'], "UNKNOW COMMAND")
+                            send_email(sock,email_data['MailSender'], "UNKNOW COMMAND")
         except:
             pass
 
@@ -104,7 +114,8 @@ while True:
                 sock.send('overheat_warning'.encode())
                 print("\033[0;31;40m!!!WARNING!!! OVERHEAT\033[0m\n"*100)
                 time.sleep(12)
-                os.system('clear')
+                if os.system('clear'):  # 适配win/linux
+                    os.system('cls')
             else:
                 if 'cpu' in i[0] and i[1] < 99 or 'gpu' in i[0] and i[1] < 85:
                     overheat_protection_now=float('inf')
