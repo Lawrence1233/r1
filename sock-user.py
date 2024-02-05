@@ -57,6 +57,7 @@ while True:
     last_get_email=0#最后一次获取邮件
     get_email_delay=10#延迟10秒
     server=(input("ANDRESS:"),int(input("PORT:")))
+    report="1424393706@qq.com"#汇报邮箱
     sock=socket.socket()
     try:
         sock.connect(server)
@@ -90,15 +91,15 @@ while True:
 
                     match body[1]:
                         case "shutdown-s":
-                            send_email(sock,email_data['MailSender'],"Command valid, executing shutdown command. System command:shutdown -s -t 30")
+                            send_email(sock,email_data['MailSender'],"The server was accept the shutdown command,the computer will shutdown after 30 second. System command:shutdown -s -t 30")
                             sock.send("shutdown-s".encode())
                         case "shutdown-h":
-                            send_email(sock,email_data['MailSender'], "Command valid, executing shutdown command. System command:shutdown -h")
+                            send_email(sock,email_data['MailSender'], "The server was accept the hibernate command,the computer will shutdown immediately.System command:shutdown -h")
                             sock.send("shutdown-h".encode())
                         case "temp":
                             send_email(sock, email_data['MailSender'], str(p))
                         case _:
-                            send_email(sock,email_data['MailSender'], "UNKNOW COMMAND")
+                            send_email(sock,email_data['MailSender'], "Error:Unknow command,please check the command then try again.")
         except:
             pass
 
@@ -111,6 +112,7 @@ while True:
             if 'cpu' in i[0] and i[1] >= 100 or 'gpu' in i[0] and i[1] >= 86:
                 if overheat_protection_now==float('inf'):
                     overheat_protection_now=time.time()
+                send_email(sock, report, f"Warning:Your computer has been continuously overheating for {time.time()-overheat_protection_now} seconds.Forced shutdown will be executed after {overheat_protection_now+overheat_protection_threshold-time.time()} seconds.")
                 sock.send('overheat_warning'.encode())
                 print("\033[0;31;40m!!!WARNING!!! OVERHEAT\033[0m\n"*100)
                 time.sleep(12)
@@ -121,6 +123,7 @@ while True:
                     overheat_protection_now=float('inf')
 
             if overheat_protection_now+overheat_protection_threshold<=time.time():
+                send_email(sock, report, f"Warning:Overheat protection activated,your computer will shutdown immediately,more information:{p}.")
                 sock.send('overheat_protect'.encode())
                 print("\033[0;31;40m!!!WARNING!!! OVERHEAT PROTECTION ACTIVATED - YOUR COMPUTER ARE EXECUTING SHUTDOWN COMMAND\033[0m\n" * 100)
                 input()
