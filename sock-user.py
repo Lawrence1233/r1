@@ -98,6 +98,9 @@ while True:
                             sock.send("shutdown-h".encode())
                         case "temp":
                             send_email(sock, email_data['MailSender'], str(p))
+                        case "lockup":
+                            send_email(sock, email_data['MailSender'],"Complete.Your computer is locked.")
+                            sock.send("lockup".encode())
                         case _:
                             send_email(sock,email_data['MailSender'], "Error:Unknow command,please check the command then try again.")
         except:
